@@ -1,3 +1,21 @@
+/*
+ *	Copyright (C) 2016 Richard Jansson 
+ *	
+ *	This file is part of Veta.
+ *	
+ *	Veta is free software: you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *	the Free Software Foundation, either version 3 of the License, or
+ *	(at your option) any later version.
+ *	
+ *	Veta is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU General Public License for more details.
+ *	
+ *	You should have received a copy of the GNU General Public License
+ *	along with Veta.  If not, see <http://www.gnu.org/licenses/>.
+*/
 #include <float.h>
 
 #include "swan.h"
@@ -14,6 +32,16 @@ rgb white=(rgb){ 255, 255, 255};
 
 
 #define MAX_DIST 5000.0
+
+void putpixel_3d(int x,int y,double z,rgb c){
+	if(x<=0||x>=WIDTH) return;
+	if(y<=0||y>=HEIGHT) return;
+	if(z_buffer[y*WIDTH+x] > z ){ 
+		putpixel_c(x,y,c);
+		z_buffer[y*WIDTH+x]=z;
+	}
+}
+
 float clipfloat(float f,float min,float max){
 	if( f < min ) f = 0.0;
 	if( f > max ) f = max;
@@ -215,11 +243,9 @@ void draw_triangle_gradient_new(point p[],vect_t zv[],double zs[],rgb c[]){
 			cout.r=b.x*c[0].r + b.y*c[1].r + b.z*c[2].r;
 			cout.g=b.x*c[0].g + b.y*c[1].g + b.z*c[2].g;
 			cout.b=b.x*c[0].b + b.y*c[1].b + b.z*c[2].b;
-			if(z_buffer[y*WIDTH+x] > z ){ 
-				putpixel_c(x,y,cout);
-				z_buffer[y*WIDTH+x]=z;
-			}
-//			putpixel_c(x,y,c[0]);
+
+			putpixel_3d(x,y,z,cout);
+//			putpixel_c(x,y,c[0])
 		}
 	}
 }
@@ -265,9 +291,12 @@ void draw_triangle_gradient(point p[],vect_t zv[],double zs[],rgb c[]){
 			if( x < 0 || x > WIDTH) continue;
 			if( y < 0 || y > HEIGHT) continue;
 //			printf("%f\n",z);
-			if(z_buffer[y*WIDTH+x] > z ){ 
-				putpixel_c(x,y,c[0]);
-				z_buffer[y*WIDTH+x]=z;
+//
+			if((y>=0 && y<HEIGHT) && (x>0&&x<WIDTH)){
+				if(z_buffer[y*WIDTH+x] > z ){ 
+					putpixel_c(x,y,c[0]);
+					z_buffer[y*WIDTH+x]=z;
+				}
 			}
 		}
 	}
@@ -284,9 +313,11 @@ void draw_triangle_gradient(point p[],vect_t zv[],double zs[],rgb c[]){
 			double z = b.x*zs[0] + b.y*zs[1] + b.z*zs[2]; 
 			if( x < 0 || x > WIDTH) continue;
 			if( y < 0 || y > HEIGHT) continue;
-			if(z_buffer[y*WIDTH+x] > z){ 
-				putpixel_c(x,y,c[0]);
-				z_buffer[y*WIDTH+x]=z;
+			if((y>=0 && y<HEIGHT) && (x>0&&x<WIDTH)){
+				if(z_buffer[y*WIDTH+x] > z){ 
+					putpixel_c(x,y,c[0]);
+					z_buffer[y*WIDTH+x]=z;
+				}
 			}
 		}
 	}
